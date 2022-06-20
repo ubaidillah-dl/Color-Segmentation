@@ -7,57 +7,56 @@ def rescale_frame(frame,percent=75):
     dim=(width, height)
     return cv2.resize(frame,dim,interpolation=cv2.INTER_AREA)
 
-camera=cv2.VideoCapture(0)
+cap=cv2.VideoCapture(0)
 
 while True:
-    _,frame=camera.read()
-    image=rescale_frame(frame,percent=70)
-    hsv=cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
-    hsv=rescale_frame(hsv,percent=50)
-    frame2=rescale_frame(frame,percent=50)
+    _,frame=cap.read()
+    frame=rescale_frame(frame,percent=47)
+    cv2.rectangle(frame,(0,0),(150,30),(255,255,255),-1)
+    frame=cv2.putText(frame,"Original Image",(10,20),cv2.FONT_HERSHEY_PLAIN,1,(0,0,0),0)
+    hsv=cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
     
-    #Blue
-    lower_blue=np.array([90,50,70])
-    upper_blue=np.array([128,255,255])
+    lower_blue=np.array([90,170,160])
+    upper_blue=np.array([130,255,255])
     mask_blue=cv2.inRange(hsv,lower_blue,upper_blue)
-    mask_blue=cv2.cvtColor(mask_blue,cv2.COLOR_GRAY2BGR)
-    
-    #Green
-    lower_green=np.array([60,50,70])
-    upper_green=np.array([89,255,255])
+    res_blue=cv2.bitwise_and(frame,frame,mask=mask_blue)
+    cv2.rectangle(res_blue,(0,0),(150,30),(255,255,255),-1)
+    res_blue=cv2.putText(res_blue,"Blue Color",(10,20),cv2.FONT_HERSHEY_PLAIN,1,(0,0,0),0)
+
+    lower_green=np.array([60,170,160])
+    upper_green=np.array([80,255,255])
     mask_green=cv2.inRange(hsv,lower_green,upper_green)
-    mask_green=cv2.cvtColor(mask_green,cv2.COLOR_GRAY2BGR)
-    
-    #Yellow
-    lower_yellow=np.array([20,100,120])
-    upper_yellow=np.array([50,255,255])
-    mask_yellow=cv2.inRange(hsv,lower_yellow,upper_yellow)
-    mask_yellow=cv2.cvtColor(mask_yellow,cv2.COLOR_GRAY2BGR)
-    
-    #Red
-    lower_red=np.array([0,30,40])
+    res_green=cv2.bitwise_and(frame,frame,mask=mask_green)
+    cv2.rectangle(res_green,(0,0),(150,30),(255,255,255),-1)
+    res_green=cv2.putText(res_green,"Green Color",(10,20),cv2.FONT_HERSHEY_PLAIN,1,(0,0,0),0)
+
+    lower_red=np.array([0,35,210])
     upper_red=np.array([10,255,255])
     mask_red=cv2.inRange(hsv,lower_red,upper_red)
-    mask_red=cv2.cvtColor(mask_red,cv2.COLOR_GRAY2BGR)
+    res_red=cv2.bitwise_and(frame,frame,mask=mask_red)
+    cv2.rectangle(res_red,(0,0),(150,30),(255,255,255),-1)
+    res_red=cv2.putText(res_red,"Red Color",(10,20),cv2.FONT_HERSHEY_PLAIN,1,(0,0,0),0)
+    
+    lower_yellow=np.array([20,0,240])
+    upper_yellow=np.array([80,255,255])
+    mask_yellow=cv2.inRange(hsv,lower_yellow,upper_yellow)
+    res_yellow=cv2.bitwise_and(frame,frame,mask=mask_yellow)
+    cv2.rectangle(res_yellow,(0,0),(150,30),(255,255,255),-1)
+    res_yellow=cv2.putText(res_yellow,"Yellow Color",(10,20),cv2.FONT_HERSHEY_PLAIN,1,(0,0,0),0)
 
-    cv2.rectangle(image,(0,0),(150,30),(255,255,255),-1)
-    cv2.rectangle(mask_blue,(0,0),(150,30),(255,255,255),-1)
-    cv2.rectangle(mask_green,(0,0),(150,30),(255,255,255),-1)
-    cv2.rectangle(mask_yellow,(0,0),(150,30),(255,255,255),-1)
-    cv2.rectangle(mask_red,(0,0),(150,30),(255,255,255),-1)
+    lower_purple=np.array([140,20,160])
+    upper_purple=np.array([160,255,255])
+    mask_purple=cv2.inRange(hsv,lower_purple,upper_purple)
+    res_purple=cv2.bitwise_and(frame,frame,mask=mask_purple)
+    cv2.rectangle(res_purple,(0,0),(150,30),(255,255,255),-1)
+    res_purple=cv2.putText(res_purple,"Purple Color",(10,20),cv2.FONT_HERSHEY_PLAIN,1,(0,0,0),0)
     
-    image=cv2.putText(image,"Original Image",(10,20),cv2.FONT_HERSHEY_PLAIN,1,(0,0,0),0)
-    mask_blue=cv2.putText(mask_blue,"Blue",(10,20),cv2.FONT_HERSHEY_PLAIN,1,(0,0,0),0)
-    mask_green=cv2.putText(mask_green,"Green",(10,20),cv2.FONT_HERSHEY_PLAIN,1,(0,0,0),0)
-    mask_yellow=cv2.putText(mask_yellow,"Yellow",(10,20),cv2.FONT_HERSHEY_PLAIN,1,(0,0,0),0)
-    mask_red=cv2.putText(mask_red,"Red",(10,20),cv2.FONT_HERSHEY_PLAIN,1,(0,0,0),0)
+    hor1=cv2.hconcat([frame,res_blue])
+    hor2=cv2.hconcat([res_green,res_red])
+    hor3=cv2.hconcat([res_yellow,res_purple])
+    concat=cv2.vconcat([hor1,hor2,hor3])
     
-    hor1=np.hstack((mask_blue,mask_green))
-    hor2=np.hstack((mask_yellow,mask_red))
-    hor1n2=np.vstack((hor1,hor2))
-    
-    stacked=np.vstack((image,hor1n2))
-    cv2.imshow('Color Segmentation',stacked)
+    cv2.imshow('Color Segmentation',concat)
     
     if cv2.waitKey(1)==ord('p'):
         break
